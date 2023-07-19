@@ -561,7 +561,7 @@ static void iface_cb(struct net_if *iface, void *user_data)
 			continue;
 		}
 
-		PR("\t%s\n", net_sprint_ipv6_addr(&mcast->address.in6_addr));
+		PR("\t%s\n", net_sRAVIprint_ipv6_addr(&mcast->address.in6_addr));
 
 		count++;
 	}
