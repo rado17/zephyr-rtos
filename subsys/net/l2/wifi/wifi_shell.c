@@ -85,6 +85,19 @@ static struct wifi_ap_sta_node sta_list[CONFIG_WIFI_SHELL_MAX_AP_STA];
 		}							\
 	} while (false)
 
+struct net_if *get_net_if()
+{
+	const struct device *wifi_dev;
+	struct net_if *iface = NULL;
+
+	wifi_dev = DEVICE_DT_GET(DT_NODELABEL(nrf_wlan0));
+	if (wifi_dev) {
+		iface = net_if_lookup_by_dev(wifi_dev);
+	}
+
+	return iface;
+}
+
 static bool parse_number(const struct shell *sh, long *param, char *str, long min, long max)
 {
 	char *endptr;
@@ -580,8 +593,14 @@ static int __wifi_args_to_params(size_t argc, char *argv[],
 static int cmd_wifi_connect(const struct shell *sh, size_t argc,
 			    char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_connect_req_params cnx_params = { 0 };
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 	if (__wifi_args_to_params(argc - 1, &argv[1], &cnx_params, WIFI_MODE_INFRA)) {
@@ -608,8 +627,14 @@ static int cmd_wifi_connect(const struct shell *sh, size_t argc,
 static int cmd_wifi_disconnect(const struct shell *sh, size_t argc,
 			       char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	int status;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.disconnecting = true;
 	context.sh = sh;
@@ -754,12 +779,19 @@ static int wifi_scan_args_to_params(const struct shell *sh,
 	return opt_num;
 }
 
+
 static int cmd_wifi_scan(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_scan_params params = { 0 };
 	bool do_scan = true;
 	int opt_num;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -792,8 +824,14 @@ static int cmd_wifi_scan(const struct shell *sh, size_t argc, char *argv[])
 
 static int cmd_wifi_status(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
 	struct wifi_iface_status status = { 0 };
+	struct net_if *iface = NULL;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -868,9 +906,15 @@ static int cmd_wifi_stats(const struct shell *sh, size_t argc, char *argv[])
 {
 #if defined(CONFIG_NET_STATISTICS_WIFI) && \
 					defined(CONFIG_NET_STATISTICS_USER_API)
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct net_stats_wifi stats = { 0 };
 	int ret;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	ret = net_mgmt(NET_REQUEST_STATS_GET_WIFI, iface,
 				&stats, sizeof(stats));
@@ -891,9 +935,14 @@ static int cmd_wifi_stats(const struct shell *sh, size_t argc, char *argv[])
 
 static int cmd_wifi_ps(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_ps_params params = { 0 };
 
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 	context.sh = sh;
 
 	if (argc > 2) {
@@ -979,8 +1028,14 @@ static int cmd_wifi_ps(const struct shell *sh, size_t argc, char *argv[])
 
 static int cmd_wifi_ps_mode(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_ps_params params = { 0 };
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1009,10 +1064,16 @@ static int cmd_wifi_ps_mode(const struct shell *sh, size_t argc, char *argv[])
 
 static int cmd_wifi_ps_timeout(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_ps_params params = { 0 };
 	long timeout_ms = 0;
 	int err = 0;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1045,10 +1106,16 @@ static int cmd_wifi_ps_timeout(const struct shell *sh, size_t argc, char *argv[]
 static int cmd_wifi_twt_setup_quick(const struct shell *sh, size_t argc,
 			      char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_twt_params params = { 0 };
 	int idx = 1;
 	long value;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1093,10 +1160,16 @@ static int cmd_wifi_twt_setup_quick(const struct shell *sh, size_t argc,
 static int cmd_wifi_twt_setup(const struct shell *sh, size_t argc,
 			      char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_twt_params params = { 0 };
 	int idx = 1;
 	long value;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1178,9 +1251,15 @@ static int cmd_wifi_twt_setup(const struct shell *sh, size_t argc,
 static int cmd_wifi_twt_teardown(const struct shell *sh, size_t argc,
 			      char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_twt_params params = { 0 };
 	long value;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 	int idx = 1;
@@ -1228,8 +1307,14 @@ static int cmd_wifi_twt_teardown(const struct shell *sh, size_t argc,
 static int cmd_wifi_twt_teardown_all(const struct shell *sh, size_t argc,
 			      char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_twt_params params = { 0 };
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1254,9 +1339,15 @@ static int cmd_wifi_twt_teardown_all(const struct shell *sh, size_t argc,
 static int cmd_wifi_ap_enable(const struct shell *sh, size_t argc,
 			      char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	static struct wifi_connect_req_params cnx_params;
 	int ret;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 	if (__wifi_args_to_params(argc - 1, &argv[1], &cnx_params, WIFI_MODE_AP)) {
@@ -1281,8 +1372,14 @@ static int cmd_wifi_ap_enable(const struct shell *sh, size_t argc,
 static int cmd_wifi_ap_disable(const struct shell *sh, size_t argc,
 			       char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	int ret;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	ret = net_mgmt(NET_REQUEST_WIFI_AP_DISABLE, iface, NULL, 0);
 	if (ret) {
@@ -1363,9 +1460,15 @@ static int cmd_wifi_ap_sta_disconnect(const struct shell *sh, size_t argc,
 static int cmd_wifi_reg_domain(const struct shell *sh, size_t argc,
 			       char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_reg_domain regd = {0};
 	int ret, chan_idx = 0;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	if (argc == 1) {
 		(&regd)->chan_info = &chan_info[0];
@@ -1436,9 +1539,15 @@ static int cmd_wifi_reg_domain(const struct shell *sh, size_t argc,
 
 static int cmd_wifi_listen_interval(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_ps_params params = { 0 };
 	long interval = 0;
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1475,8 +1584,14 @@ static int cmd_wifi_listen_interval(const struct shell *sh, size_t argc, char *a
 
 static int cmd_wifi_ps_wakeup_mode(const struct shell *sh, size_t argc, char *argv[])
 {
-	struct net_if *iface = net_if_get_first_wifi();
+	struct net_if *iface = NULL;
 	struct wifi_ps_params params = { 0 };
+
+	iface = get_net_if();
+	if (iface == NULL) {
+		LOG_ERR("Could not get the Wi-Fi net interface");
+		return -EFAULT;
+	}
 
 	context.sh = sh;
 
@@ -1574,7 +1689,7 @@ static int cmd_wifi_mode(const struct shell *sh, size_t argc, char *argv[])
 		 * lower layer
 		 */
 		if (mode_info.if_index == 0) {
-			iface = net_if_get_first_wifi();
+			iface = get_net_if();
 			if (iface == NULL) {
 				shell_fprintf(sh, SHELL_ERROR,
 					      "Cannot find the default wifi interface\n");
@@ -1663,7 +1778,7 @@ static int cmd_wifi_channel(const struct shell *sh, size_t argc, char *argv[])
 		 */
 
 		if (channel_info.if_index == 0) {
-			iface = net_if_get_first_wifi();
+			iface = get_net_if();
 			if (iface == NULL) {
 				shell_fprintf(sh, SHELL_ERROR,
 					      "Cannot find the default wifi interface\n");
@@ -1780,7 +1895,7 @@ static int cmd_wifi_packet_filter(const struct shell *sh, size_t argc, char *arg
 		 * value to be verified by the lower layer.
 		 */
 		if (packet_filter.if_index == 0) {
-			iface = net_if_get_first_wifi();
+			iface = get_net_if();
 			if (iface == NULL) {
 				shell_fprintf(sh, SHELL_ERROR,
 					      "Cannot find the default wifi interface\n");
