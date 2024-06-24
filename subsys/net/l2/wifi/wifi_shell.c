@@ -32,14 +32,17 @@ LOG_MODULE_REGISTER(net_wifi_shell, LOG_LEVEL_INF);
 #ifdef CONFIG_WIFI_NM_WPA_SUPPLICANT_CRYPTO_ENTERPRISE
 static const char ca_cert_test[] = {
 	#include <wifi_enterprise_test_certs/ca.pem.inc>
+	'\0'
 };
 
 static const char client_cert_test[] = {
 	#include <wifi_enterprise_test_certs/client.pem.inc>
+	'\0'
 };
 
 static const char client_key_test[] = {
 	#include <wifi_enterprise_test_certs/client-key.pem.inc>
+	'\0'
 };
 #endif
 
@@ -488,24 +491,23 @@ static int __wifi_args_to_params(const struct shell *sh, size_t argc, char *argv
 				 enum wifi_iface_mode iface_mode)
 {
 	int opt;
-	int opt_index = 0;
 	struct getopt_state *state;
-	static const struct option long_options[] = {
-		{"ssid", required_argument, 0, 's'},
-		{"passphrase", required_argument, 0, 'p'},
-		{"key-mgmt", required_argument, 0, 'k'},
-		{"ieee-80211w", required_argument, 0, 'w'},
-		{"bssid", required_argument, 0, 'm'},
-		{"band", required_argument, 0, 'b'},
-		{"channel", required_argument, 0, 'c'},
-		{"timeout", required_argument, 0, 't'},
-		{"anon-id", required_argument, 0, 'a'},
-		{"key-passwd", required_argument, 0, 'K'},
-		{"help", no_argument, 0, 'h'},
-		{0, 0, 0, 0}};
 	char *endptr;
 	int idx = 1;
 	bool secure_connection = false;
+	static struct option long_options[] = {{"ssid", required_argument, 0, 's'},
+					       {"passphrase", required_argument, 0, 'p'},
+					       {"key-mgmt", required_argument, 0, 'k'},
+					       {"ieee-80211w", required_argument, 0, 'w'},
+					       {"bssid", required_argument, 0, 'm'},
+					       {"band", required_argument, 0, 'b'},
+					       {"channel", required_argument, 0, 'c'},
+					       {"timeout", required_argument, 0, 't'},
+					       {"anon-id", required_argument, 0, 'a'},
+					       {"key-passwd", required_argument, 0, 'K'},
+					       {"help", no_argument, 0, 'h'},
+					       {0, 0, 0, 0}};
+	int opt_index = 0;
 	uint8_t band;
 	const uint8_t all_bands[] = {
 		WIFI_FREQ_BAND_2_4_GHZ,
@@ -2538,8 +2540,8 @@ SHELL_STATIC_SUBCMD_SET_CREATE(wifi_cmd_ap,
 		  "-c --channel=<channel number>\n"
 		  "-p --passphrase=<PSK> (valid only for secure SSIDs)\n"
 		  "-k --key-mgmt=<Security type> (valid only for secure SSIDs)\n"
-		  "0:None, 1:WPA2-PSK, 2:WPA2-PSK-256, 3:SAE, 4:WAPI, 5:EAP-TLS, 6:WEP\n"
-		  "7: WPA-PSK\n"
+		  "0:None, 1:WPA2-PSK, 2:WPA2-PSK-256, 3:SAE, 4:WAPI, 5:WEP, 6: WPA-PSK\n"
+		  "7: WPA-Auto-Personal, 8: EAP-TLS\n"
 		  "-w --ieee-80211w=<MFP> (optional: needs security type to be specified)\n"
 		  "0:Disable, 1:Optional, 2:Required\n"
 		  "-b --band=<band> (2 -2.6GHz, 5 - 5Ghz, 6 - 6GHz)\n"
