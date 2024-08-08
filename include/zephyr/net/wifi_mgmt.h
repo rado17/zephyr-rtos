@@ -100,8 +100,6 @@ enum net_request_wifi_cmd {
 	/** BSS transition management query */
 	NET_REQUEST_WIFI_CMD_BTM_QUERY,
 #endif
-	/** Set enterprise mode credential */
-	NET_REQUEST_WIFI_CMD_ENTERPRISE_CREDS,
 	/** Get RTS threshold */
 	NET_REQUEST_WIFI_CMD_RTS_THRESHOLD_CONFIG,
 	/** Flush PMKSA cache entries */

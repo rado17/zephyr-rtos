@@ -711,7 +711,7 @@ static int cmd_wifi_connect(const struct shell *sh, size_t argc,
 	if (cnx_params.security == WIFI_SECURITY_TYPE_EAP_TLS) {
 		cmd_wifi_set_enterprise_creds(sh, iface);
 	}
-#endif
+#endif /* CONFIG_WIFI_NM_WPA_SUPPLICANT_CRYPTO_ENTERPRISE */
 
 	context.connecting = true;
 	ret = net_mgmt(NET_REQUEST_WIFI_CONNECT, iface,

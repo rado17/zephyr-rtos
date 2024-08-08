@@ -81,7 +81,7 @@ static const struct wifi_mgmt_ops mgmt_ops = {
 	.pmksa_flush = supplicant_pmksa_flush,
 #ifdef CONFIG_WIFI_NM_WPA_SUPPLICANT_CRYPTO_ENTERPRISE
 	.enterprise_creds = supplicant_add_enterprise_creds,
-#endif
+#endif /* CONFIG_WIFI_NM_WPA_SUPPLICANT_CRYPTO_ENTERPRISE */
 };
 
 DEFINE_WIFI_NM_INSTANCE(wifi_supplicant, &mgmt_ops);
