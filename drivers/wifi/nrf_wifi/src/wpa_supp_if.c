@@ -556,6 +556,7 @@ int nrf_wifi_wpa_supp_scan2(void *if_priv, struct wpa_driver_scan_params *params
 	}
 
 	scan_info->scan_reason = SCAN_CONNECT;
+	scan_info->scan_params.no_cck = 1;
 
 	/* Copy extra_ies */
 	if (params->extra_ies_len && params->extra_ies_len <= NRF_WIFI_MAX_IE_LEN) {
@@ -1794,6 +1795,9 @@ int nrf_wifi_supp_get_capa(void *if_priv, struct wpa_driver_capa *capa)
 	capa->rrm_flags |= WPA_DRIVER_FLAGS_SUPPORT_BEACON_REPORT;
 	if (IS_ENABLED(CONFIG_NRF70_AP_MODE)) {
 		capa->flags |= WPA_DRIVER_FLAGS_AP;
+	}
+	if (IS_ENABLED(CONFIG_NRF70_P2P_MODE)) {
+		capa->flags |= WPA_DRIVER_FLAGS_P2P_CAPABLE;
 	}
 
 	capa->enc |= WPA_DRIVER_CAPA_ENC_WEP40 |
